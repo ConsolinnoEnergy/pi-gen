@@ -46,7 +46,11 @@ EOF
 
 on_chroot << EOF
 setupcon --force --save-only -v
+echo "bcm2835_wdt" | tee -a /etc/modules
 EOF
+
+install -m 755 files/watchdog-test.sh "${ROOTFS_DIR}/usr/sbin/watchdog-test.sh"
+install -m 644 files/watchdog.conf "${ROOTFS_DIR}/etc/watchdog.conf"
 
 on_chroot << EOF
 usermod --pass='*' root
