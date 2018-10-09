@@ -7,7 +7,7 @@ install -v -m 644 files/fstab "${ROOTFS_DIR}/etc/fstab"
 if [ -f files/pi_default_pass ]; then
 	install -v -m 644 files/pi_default_pass "${ROOTFS_DIR}/tmp/pi_default_pass"
 else
-	echo "pi:raspberry" > "${ROOTFS_DIR}/tmp/pi_default_pass"
+	install -v -m 644 files/pi_default_pass.template "${ROOTFS_DIR}/tmp/pi_default_pass"
 fi
 
 on_chroot << EOF
