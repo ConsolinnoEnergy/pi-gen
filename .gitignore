@@ -8,3 +8,5 @@ SKIP_IMAGES
 *-pc
 apt-cacher-ng/
 stage1/01-sys-tweaks/files/pi_default_pass
+stage2/02-net-tweaks/files/hostapd.conf
+stage2/02-net-tweaks/files/authorized_keys

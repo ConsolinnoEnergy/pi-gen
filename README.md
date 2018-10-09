@@ -12,7 +12,7 @@ earlier releases of these systems.
 To install the required dependencies for pi-gen you should run:
 
 ```bash
-sudo pt-get install quilt parted qemu-user-static debootstrap zerofree pxz zip \
+sudo apt-get install quilt parted qemu-user-static debootstrap zerofree pxz zip \
 dosfstools bsdtar libcap2-bin grep rsync xz-utils file git
 ```
 
@@ -61,7 +61,7 @@ The following environment variables are supported:
    be built and cached.  Note, `WORK_DIR` stores a complete copy of the target
    system for each build stage, amounting to tens of gigabytes in the case of
    Raspbian.
-   
+
    **CAUTION**: If your working directory is on an NTFS partition you probably won't be able to build. Make sure this is a proper Linux filesystem.
 
  * `DEPLOY_DIR`  (Default: `"$BASE_DIR/deploy"`)
