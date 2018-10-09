@@ -11,11 +11,14 @@ install -m 644 files/console-setup   	"${ROOTFS_DIR}/etc/default/"
 
 install -m 755 files/rc.local		"${ROOTFS_DIR}/etc/"
 
+#disable ssh password auth
+sed -i 's|[#]*PasswordAuthentication yes|PasswordAuthentication no|g' "${ROOTFS_DIR}/etc/ssh/sshd_config"
+sed -i 's|UsePAM yes|UsePAM no|g' "${ROOTFS_DIR}/etc/ssh/sshd_config"
+
 on_chroot << EOF
 systemctl disable hwclock.sh
 systemctl disable nfs-common
 systemctl disable rpcbind
-systemctl disable ssh
 systemctl enable regenerate_ssh_host_keys
 EOF
 
@@ -56,4 +59,3 @@ tmpfs    /var/tmp    tmpfs    defaults,noatime,nosuid,size=30m    0 0
 tmpfs    /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=100m    0 0
 tmpfs    /var/run    tmpfs    defaults,noatime,nosuid,mode=0755,size=2m    0 0
 tmpfs    /var/spool/mqueue    tmpfs    defaults,noatime,nosuid,mode=0700,gid=12,size=30m    0 0' >> ${ROOTFS_DIR}/etc/fstab
-
