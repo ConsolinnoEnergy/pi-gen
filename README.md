@@ -22,6 +22,19 @@ package is `<tool>[:<debian-package>]`.
 
 ## Config
 
+Create secure defualt password file for pi user:
+
+echo "pi:replace_with_secure_password" > stage1/01-sys-tweaks/files/pi_default_pass
+
+Copy and modify wifi ap security settings:
+
+cp -f stage2/02-net-tweaks/files/hostapd.conf.tempate stage2/02-net-tweaks/files/hostapd.conf
+nano stage2/02-net-tweaks/files/hostapd.conf -> modify "wpa_passphrase"
+
+Modify ssh keys for default/debug authorization, ssh password login is disabled:
+
+cat ~/.ssh/id_rsa.pub > stage2/02-net-tweaks/files/authorized_keys
+
 Upon execution, `build.sh` will source the file `config` in the current
 working directory.  This bash shell fragment is intended to set needed
 environment variables.
