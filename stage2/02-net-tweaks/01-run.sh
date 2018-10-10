@@ -22,4 +22,5 @@ mkdir 700 "${ROOTFS_DIR}/home/pi/.ssh"
 
 if [ -f files/authorized_keys ]; then
   install -v -m 600 files/authorized_keys	"${ROOTFS_DIR}/home/pi/.ssh/authorized_keys"
+  chown 1000:1000 "${ROOTFS_DIR}/home/pi/.ssh" -Rf
 fi
