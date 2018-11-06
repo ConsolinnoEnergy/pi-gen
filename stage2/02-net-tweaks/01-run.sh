@@ -16,6 +16,8 @@ install -v -m 644 files/dhcpcd.conf	"${ROOTFS_DIR}/etc/dhcpcd.conf"
 
 install -v -m 644 files/dnsmasq.conf	"${ROOTFS_DIR}/etc/dnsmasq.conf"
 
+install -v -m 644 files/vlans	"${ROOTFS_DIR}/etc/network/interfaces.d/vlans"
+
 
 sed -i 's|#DAEMON_CONF=""|DAEMON_CONF="/etc/hostapd/hostapd.conf"|g' "${ROOTFS_DIR}/etc/default/hostapd"
 
@@ -28,3 +30,4 @@ fi
 
 #dont wait to long for dhcp on startup
   echo -e "timeout 5;\nretry 30;\nreboot 5;" >> "${ROOTFS_DIR}/etc/dhcp/dhclient.conf"
+  sed -i -e 's/NAME="[^"]*"/NAME="eth0"/g' "${ROOTFS_DIR}/lib/udev/rules.d/73-usb-net-by-mac.rules"

@@ -4,3 +4,4 @@ dhcpcd5
 net-tools
 dnsmasq
 hostapd
+vlan
