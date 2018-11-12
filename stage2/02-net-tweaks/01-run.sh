@@ -16,12 +16,10 @@ install -v -m 644 files/dhcpcd.conf	"${ROOTFS_DIR}/etc/dhcpcd.conf"
 
 install -v -m 644 files/dnsmasq.conf	"${ROOTFS_DIR}/etc/dnsmasq.conf"
 
-install -v -m 644 files/vlans	"${ROOTFS_DIR}/etc/network/interfaces.d/vlans"
-
 
 sed -i 's|#DAEMON_CONF=""|DAEMON_CONF="/etc/hostapd/hostapd.conf"|g' "${ROOTFS_DIR}/etc/default/hostapd"
 
-mkdir 700 "${ROOTFS_DIR}/home/pi/.ssh"
+mkdir -p 700 "${ROOTFS_DIR}/home/pi/.ssh"
 
 if [ -f files/authorized_keys ]; then
   install -v -m 600 files/authorized_keys	"${ROOTFS_DIR}/home/pi/.ssh/authorized_keys"

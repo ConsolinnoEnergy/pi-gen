@@ -47,7 +47,7 @@ EOF
 on_chroot << EOF
 setupcon --force --save-only -v
 echo "bcm2835_wdt" | tee -a /etc/modules
-mkdir /etc/watchdog.d/
+mkdir -p /etc/watchdog.d/
 EOF
 
 install -m 644 files/watchdog.conf "${ROOTFS_DIR}/etc/watchdog.conf"
