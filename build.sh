@@ -91,7 +91,7 @@ run_stage(){
 			EXPORT_DIRS="${EXPORT_DIRS} ${STAGE_DIR}"
 		fi
 	fi
-	if [ ! -f SKIP ]; then
+	if [ ! -f SKIP ] || [ ! -d $STAGE_WORK_DIR ]; then
 		if [ "${CLEAN}" = "1" ]; then
 			if [ -d "${ROOTFS_DIR}" ]; then
 				rm -rf "${ROOTFS_DIR}"
