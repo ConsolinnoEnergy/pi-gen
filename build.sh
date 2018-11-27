@@ -117,6 +117,36 @@ run_stage(){
 	log "End ${STAGE_DIR}"
 }
 
+run_build(){
+	for STAGE_DIR in "${BASE_DIR}/stage"*; do
+		run_stage
+	done
+
+	CLEAN=1
+	for EXPORT_DIR in ${EXPORT_DIRS}; do
+		STAGE_DIR=${BASE_DIR}/export-image
+		# shellcheck source=/dev/null
+		source "${EXPORT_DIR}/EXPORT_IMAGE"
+		EXPORT_ROOTFS_DIR=${WORK_DIR}/$(basename "${EXPORT_DIR}")/rootfs
+		run_stage
+		if [ "${USE_QEMU}" != "1" ]; then
+			if [ -e "${EXPORT_DIR}/EXPORT_NOOBS" ]; then
+				# shellcheck source=/dev/null
+				source "${EXPORT_DIR}/EXPORT_NOOBS"
+				STAGE_DIR="${BASE_DIR}/export-noobs"
+				run_stage
+			fi
+		fi
+	done
+
+	if [ -x postrun.sh ]; then
+		log "Begin postrun.sh"
+		cd "${BASE_DIR}"
+		./postrun.sh
+		log "End postrun.sh"
+	fi
+}
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Please run as root" 1>&2
 	exit 1
@@ -170,38 +200,39 @@ source "${SCRIPT_DIR}/common"
 # shellcheck source=scripts/dependencies_check
 source "${SCRIPT_DIR}/dependencies_check"
 
-
 dependencies_check "${BASE_DIR}/depends"
 
 mkdir -p "${WORK_DIR}"
 log "Begin ${BASE_DIR}"
 
-for STAGE_DIR in "${BASE_DIR}/stage"*; do
-	run_stage
-done
-
-CLEAN=1
-for EXPORT_DIR in ${EXPORT_DIRS}; do
-	STAGE_DIR=${BASE_DIR}/export-image
-	# shellcheck source=/dev/null
-	source "${EXPORT_DIR}/EXPORT_IMAGE"
-	EXPORT_ROOTFS_DIR=${WORK_DIR}/$(basename "${EXPORT_DIR}")/rootfs
-	run_stage
-	if [ "${USE_QEMU}" != "1" ]; then
-		if [ -e "${EXPORT_DIR}/EXPORT_NOOBS" ]; then
-			# shellcheck source=/dev/null
-			source "${EXPORT_DIR}/EXPORT_NOOBS"
-			STAGE_DIR="${BASE_DIR}/export-noobs"
-			run_stage
-		fi
+#check zip input, otherwise use default route
+DEVICE_DEFINITIONS=$1
+if [ -n "$DEVICE_DEFINITIONS" ] && [ -f "$DEVICE_DEFINITIONS" ]; then
+	rm device-export -Rf
+	mkdir -p device-export
+	unzip $DEVICE_DEFINITIONS -d device-export
+	if [ ! -d "device-export/devices" ]; then
+		rm device-export -Rf
+		echo "Wrong export format"
+		exit 1
+	else
+		for DEVICE in "device-export/devices/"*; do
+			rm stage3 -Rf
+			rm ${BASE_DIR}/stage3 -Rf
+			touch stage0/SKIP
+			touch stage1/SKIP
+			touch stage2/SKIP
+			touch stage1/SKIP_IMAGES
+			touch stage2/SKIP_IMAGES
+			cp $DEVICE/stage3 . -R
+			run_build
+			#prompt for usb device and write to transcend flash
+		done
 	fi
-done
-
-if [ -x postrun.sh ]; then
-	log "Begin postrun.sh"
-	cd "${BASE_DIR}"
-	./postrun.sh
-	log "End postrun.sh"
+else
+	rm stage3 -Rf
+	rm stage2/SKIP_IMAGES
+	run_build
 fi
 
 log "End ${BASE_DIR}"
