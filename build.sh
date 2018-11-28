@@ -123,7 +123,9 @@ run_build(){
 	done
 
 	CLEAN=1
+	log "Before export image"
 	for EXPORT_DIR in ${EXPORT_DIRS}; do
+		log "start export image ${EXPORT_DIR}"
 		STAGE_DIR=${BASE_DIR}/export-image
 		# shellcheck source=/dev/null
 		source "${EXPORT_DIR}/EXPORT_IMAGE"
@@ -145,6 +147,35 @@ run_build(){
 		./postrun.sh
 		log "End postrun.sh"
 	fi
+}
+
+write_img(){
+	#ask for transcend in loop
+	while true
+	do
+		read -p "Please insert SDCard with minimum 2 GB Space, the inserted SDCard will be formated. Press [w] when ready or [c] for cancel." answer
+	  case $answer in
+			#lookup harddrives for usb devices from "SD transcend"
+	   	[w]* ) USB_HDD_DEVICE=$(lsblk -l --paths --scsi -n -o tran,name,model | grep -n "usb.*SD  Transcend" | grep -P '/dev/sd.' -o | head -1);
+							if [ -z "$USB_HDD_DEVICE" ]; then
+								echo "No usb hdd found"
+								break;
+							fi
+							IMG_PATH=$(find ./work/*/export-image/ -name *.img | sort | head -1)
+							if [ ! -f $IMG_PATH ]; then
+								echo "No input file found"
+								break;
+							fi
+							echo "writing $IMG_PATH to $USB_HDD_DEVICE"
+							dd bs=4M if=$IMG_PATH of=$USB_HDD_DEVICE status=progress
+							sync
+	           	break;;
+
+	   	[c]* ) break;;
+
+	    * )     echo "Dude, just enter [w] or [c], please."; break ;;
+	  esac
+	done
 }
 
 if [ "$(id -u)" != "0" ]; then
@@ -218,20 +249,26 @@ if [ -n "$DEVICE_DEFINITIONS" ] && [ -f "$DEVICE_DEFINITIONS" ]; then
 	else
 		for DEVICE in "device-export/devices/"*; do
 			rm stage3 -Rf
-			rm ${BASE_DIR}/stage3 -Rf
+			rm ${WORK_DIR}/export-noobs -Rf
+			rm ${WORK_DIR}/export-image -Rf
 			touch stage0/SKIP
 			touch stage1/SKIP
 			touch stage2/SKIP
-			touch stage1/SKIP_IMAGES
 			touch stage2/SKIP_IMAGES
-			cp $DEVICE/stage3 . -R
+			cp $DEVICE/stage3 stage3 -R
+			find stage3/ -name "*.sh" -exec chmod +x {} \;
 			run_build
+			rm stage3 -Rf
+			rm stage0/SKIP
+			rm stage1/SKIP
+			rm stage2/SKIP
+			rm stage2/SKIP_IMAGES
 			#prompt for usb device and write to transcend flash
+			write_img
 		done
+		exit 0
 	fi
 else
-	rm stage3 -Rf
-	rm stage2/SKIP_IMAGES
 	run_build
 fi
 
