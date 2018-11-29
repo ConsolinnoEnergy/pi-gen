@@ -161,7 +161,7 @@ write_img(){
 								echo "No usb hdd found"
 								break;
 							fi
-							IMG_PATH=$(find ./work/*/export-image/ -name *.img | sort | head -1)
+							IMG_PATH=$(find $WORK_DIR/export-image/ -name *.img | sort | head -1)
 							if [ ! -f $IMG_PATH ]; then
 								echo "No input file found"
 								break;
